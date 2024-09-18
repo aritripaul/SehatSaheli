@@ -8,10 +8,18 @@ exports.handler = function(context, event, callback) {
         twiml.say({
                 voice: 'Polly.Ruth-Neural'
             },
-            "Namaste! Sehat Saheli mein aapka swagat hai. Main aapki kya sahayata kar sakti hoon?"
+            "Hello! Welcome to Sehat Saheli. How can I help you today?"
         );
     }
-
+    else 
+    {
+        twiml.say({
+            voice: 'Polly.Ruth-Neural'
+        },
+        "Can I help you with anything else?"
+    );
+    }
+    
     // Listen to the user's speech and pass the input to the /respond Function
     twiml.gather({
         speechTimeout: 'auto', // Automatically determine the end of user speech

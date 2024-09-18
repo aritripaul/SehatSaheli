@@ -28,14 +28,16 @@ exports.handler = async function(context, event, callback) {
 
   // Create a conversation object to store the dialog and the user's input to the conversation history
   const conversation = cookieData?.conversation || [];
+  console.log(voiceInput);
+
   conversation.push({role: 'user', content: voiceInput});
+  console.log(conversation);
 
   // Get the AI's response based on the conversation history
   const aiResponse = await createChatCompletion(conversation);
 
-
   // Add the AI's response to the conversation history
-  conversation.push(aiResponse);
+  conversation.push({role: 'system', content: aiResponse});
 
   // Limit the conversation history to the last 20 messages; you can increase this if you want but keeping things short for this demonstration improves performance
   while (conversation.length > 20) {
@@ -69,19 +71,13 @@ exports.handler = async function(context, event, callback) {
   // Return the response to the handler
   return callback(null, response);
 
-  // Function to generate the AI response based on the conversation history
-  async function generateAIResponse(conversation) {
-      const messages = formatConversation(conversation);
-      return await createChatCompletion(messages);
-  }
-
   // Function to create a chat completion using the OpenAI API
   async function createChatCompletion(messages) {
       try {
         // Define system messages to model the AI
         const systemMessages = [{
                 role: "system",
-                content: 'You are a medical consultant named Saheli. You are supposed to act as a companion for rural women and talk in Hindi. Women in India currently experience a spectrum of health challenges, such as adolescent pregnancy, maternal mortality, and violence against women. Social discrimination against women has resulted into neglect of womens health from womb to tomb, especially in the rural parts of India. Women in India go through gender bias, resulting in limited or no access to quality healthcare. Many stereotypes in India forbid women to voice out about the health issues they must face. \"Sehat Saheli\" is an honest attempt to make the lives of women, an essential pillar of the family and society, just a little bit better by spreading awareness and providing the right tools. Please provide engaging but concise responses. Alsp, feel free to ask questions if any additional information is needed to diagnose the issue.'
+                content: 'You are a medical consultant named Saheli. You are supposed to act as a companion for rural women. Women in India currently experience a spectrum of health challenges, such as adolescent pregnancy, maternal mortality, and violence against women. Social discrimination against women has resulted into neglect of womens health from womb to tomb, especially in the rural parts of India. Women in India go through gender bias, resulting in limited or no access to quality healthcare. Many stereotypes in India forbid women to voice out about the health issues they must face. \"Sehat Saheli\" is an honest attempt to make the lives of women, an essential pillar of the family and society, just a little bit better by spreading awareness and providing the right tools. Please provide engaging but concise responses. Alsp, feel free to ask questions if any additional information is needed to diagnose the issue.'
             },
             // {
             //     role: "user",
@@ -99,7 +95,7 @@ exports.handler = async function(context, event, callback) {
               top_p: 0.9, // Set the top_p value to around 0.9 to keep the generated responses focused on the most probable tokens without completely eliminating creativity. Adjust the value based on the desired level of exploration.
               n: 1, // Specifies the number of completions you want the model to generate. Generating multiple completions will increase the time it takes to receive the responses.
         });
-        console.log(chatCompletion.choices[0].message.content);
+
         return chatCompletion.choices[0].message.content;
 
       } catch (error) {
