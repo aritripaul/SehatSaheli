@@ -6,22 +6,16 @@ exports.handler = function(context, event, callback) {
     if (!event.request.cookies.convo) {
         // Greet the user with a message using AWS Polly Neural voice
         twiml.say({
-                voice: 'Polly.Ruth-Neural'
+            language: "hi-IN",
+              voice: "Google.hi-IN-Standard-A"
             },
-            "Hello! Welcome to Sehat Saheli. How can I help you today?"
+            "Namaste! Sehat Saheli mein aapka swagat hai. Aj main aapki kya sahayata kar sakti hoon?"
         );
-    }
-    else 
-    {
-        twiml.say({
-            voice: 'Polly.Ruth-Neural'
-        },
-        "Can I help you with anything else?"
-    );
     }
     
     // Listen to the user's speech and pass the input to the /respond Function
-    twiml.gather({
+    twiml.gather({ // Use the Hindi language model
+        language: "hi-IN",
         speechTimeout: 'auto', // Automatically determine the end of user speech
         speechModel: 'experimental_conversations', // Use the conversation-based speech recognition model
         input: 'speech', // Specify speech as the input type

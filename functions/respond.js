@@ -39,14 +39,15 @@ exports.handler = async function(context, event, callback) {
   // Add the AI's response to the conversation history
   conversation.push({role: 'system', content: aiResponse});
 
-  // Limit the conversation history to the last 20 messages; you can increase this if you want but keeping things short for this demonstration improves performance
-  while (conversation.length > 20) {
+  // Limit the conversation history to the last 100 messages; you can increase this if you want but keeping things short for this demonstration improves performance
+  while (conversation.length > 100) {
       conversation.shift();
   }
 
   // Generate some <Say> TwiML using the cleaned up AI response
   twiml.say({
-          voice: "Polly.Ruth-Neural",
+                language: "hi-IN",
+              voice: "Google.hi-IN-Standard-A",
       },
       aiResponse
   );
@@ -77,8 +78,7 @@ exports.handler = async function(context, event, callback) {
         // Define system messages to model the AI
         const systemMessages = [{
                 role: "system",
-                content: 'You are a medical consultant named Saheli. You are supposed to act as a companion for rural women. Women in India currently experience a spectrum of health challenges, such as adolescent pregnancy, maternal mortality, and violence against women. Social discrimination against women has resulted into neglect of womens health from womb to tomb, especially in the rural parts of India. Women in India go through gender bias, resulting in limited or no access to quality healthcare. Many stereotypes in India forbid women to voice out about the health issues they must face. \"Sehat Saheli\" is an honest attempt to make the lives of women, an essential pillar of the family and society, just a little bit better by spreading awareness and providing the right tools. Please provide engaging but concise responses. Alsp, feel free to ask questions if any additional information is needed to diagnose the issue.'
-            },
+                content : "You are a medical consultant named Saheli.\n\nYour goal is to help people who talk to you. They might complaint to you about physical or mental health issues. You need to do the following in order as they are mentioned below.\n\n1> Collect info about the person you are talking to. Gender, Age, Any existing conditions, etc might be helpful information.\n2> Ask them follow up questions around their symptoms\n3>When the symptoms align with a condition inform the user about it and also give general advice.\n\nDon't you dare to break the below rules.\n* You need to ask a maximum of 2-3 questions at a time.\n* Do not ask repetitive questions.\n* Use short and simple language\n* Do not prescribe Medicines. always ask to consult a healthcare professional.\n* Do not ask for name\n"            },
             // {
             //     role: "user",
             //     content: messages
@@ -89,11 +89,11 @@ exports.handler = async function(context, event, callback) {
 
         const chatCompletion = await client.chat.completions.create({
             messages: messages,
-            model: 'gpt-35-turbo',
-            temperature: 0.8, // Controls the randomness of the generated responses. Higher values (e.g., 1.0) make the output more random and creative, while lower values (e.g., 0.2) make it more focused and deterministic. You can adjust the temperature based on your desired level of creativity and exploration.
-              max_tokens: 5000, // You can adjust this number to control the length of the generated responses. Keep in mind that setting max_tokens too low might result in responses that are cut off and don't make sense.
-              top_p: 0.9, // Set the top_p value to around 0.9 to keep the generated responses focused on the most probable tokens without completely eliminating creativity. Adjust the value based on the desired level of exploration.
-              n: 1, // Specifies the number of completions you want the model to generate. Generating multiple completions will increase the time it takes to receive the responses.
+            model: 'SehatSaheliGPT4',
+            temperature: 0.7, // Controls the randomness of the generated responses. Higher values (e.g., 1.0) make the output more random and creative, while lower values (e.g., 0.2) make it more focused and deterministic. You can adjust the temperature based on your desired level of creativity and exploration.
+            max_tokens: 800, // You can adjust this number to control the length of the generated responses. Keep in mind that setting max_tokens too low might result in responses that are cut off and don't make sense.
+            top_p: 0.95, // Set the top_p value to around 0.9 to keep the generated responses focused on the most probable tokens without completely eliminating creativity. Adjust the value based on the desired level of exploration.
+            n: 1, // Specifies the number of completions you want the model to generate. Generating multiple completions will increase the time it takes to receive the responses.
         });
 
         return chatCompletion.choices[0].message.content;
